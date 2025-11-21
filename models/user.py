@@ -1,23 +1,37 @@
 import os
 import json
+import bcrypt
+import logging
 from dataclasses import dataclass, asdict
 from typing import List
-import bcrypt
+
+logger = logging.getLogger(__name__)
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), '..', 'data')
 
 class User:
-    def __init__(self, id, name, email, birthdate, password):
+    def __init__(self, id, name, email, birthdate, password, is_hashed=False):
         self.id = id
         self.name = name
         self.email = email
         self.birthdate = birthdate
-        self.password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode()
+        if is_hashed:
+            self.password = password
+        else:
+            self.password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode()
 
 
     def __repr__(self):
         return (f"User(id={self.id}, name='{self.name}', email='{self.email}', "
                 f"birthdate='{self.birthdate}')")
+    
+
+    def verify_password(self, password) -> bool:
+        try:
+            return bcrypt.checkpw(password.encode('utf-8'), self.password.encode('utf-8'))
+        except Exception as e:
+            logger.error(f"Erro ao verificar a senha: {e}")
+            return False
 
 
     def to_dict(self):
@@ -32,13 +46,14 @@ class User:
 
     @classmethod
     def from_dict(cls, data):
-        obj = cls.__new__(cls)
-        obj.id=data['id']
-        obj.name=data['name']
-        obj.email=data['email']
-        obj.birthdate=data['birthdate']
-        obj.password=data['password']
-        return obj
+        return cls(
+            id=data['id'],
+            name=data['name'],
+            email=data['email'],
+            birthdate=data['birthdate'],
+            password=data['password'],
+            is_hashed=True
+        )
 
 
 class UserModel:
