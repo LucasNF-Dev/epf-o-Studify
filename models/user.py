@@ -1,21 +1,23 @@
-import json
 import os
+import json
 from dataclasses import dataclass, asdict
 from typing import List
+import bcrypt
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), '..', 'data')
 
 class User:
-    def __init__(self, id, name, email, birthdate):
+    def __init__(self, id, name, email, birthdate, password):
         self.id = id
         self.name = name
         self.email = email
         self.birthdate = birthdate
+        self.password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode()
 
 
     def __repr__(self):
         return (f"User(id={self.id}, name='{self.name}', email='{self.email}', "
-                f"birthdate='{self.birthdate}'")
+                f"birthdate='{self.birthdate}')")
 
 
     def to_dict(self):
@@ -23,18 +25,20 @@ class User:
             'id': self.id,
             'name': self.name,
             'email': self.email,
-            'birthdate': self.birthdate
+            'birthdate': self.birthdate,
+            'password' : self.password
         }
 
 
     @classmethod
     def from_dict(cls, data):
-        return cls(
-            id=data['id'],
-            name=data['name'],
-            email=data['email'],
-            birthdate=data['birthdate']
-        )
+        obj = cls.__new__(cls)
+        obj.id=data['id']
+        obj.name=data['name']
+        obj.email=data['email']
+        obj.birthdate=data['birthdate']
+        obj.password=data['password']
+        return obj
 
 
 class UserModel:
@@ -49,7 +53,7 @@ class UserModel:
             return []
         with open(self.FILE_PATH, 'r', encoding='utf-8') as f:
             data = json.load(f)
-            return [User(**item) for item in data]
+            return [User.from_dict(item) for item in data]
 
 
     def _save(self):
@@ -61,8 +65,8 @@ class UserModel:
         return self.users
 
 
-    def get_by_id(self, user_id: int):
-        return next((u for u in self.users if u.id == user_id), None)
+    def get_by_email(self, user_email: str):
+        return next((u for u in self.users if u.email == user_email), None)
 
 
     def add_user(self, user: User):
