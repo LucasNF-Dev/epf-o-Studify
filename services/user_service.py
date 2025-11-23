@@ -41,3 +41,13 @@ class UserService:
 
     def delete_user(self, user_id):
         self.user_model.delete_user(user_id)
+
+    def login(self, user_email, user_password):
+        return self.user_model.login(user_email, user_password)
+    
+    # def register(self, name: str, email: str, birthdate: str, password: str):
+    #     last_id = max([u.id for u in self.user_model.get_all()], default=0)
+    #     new_id = last_id + 1
+    #     user = User(id=new_id, name=name, email=email, birthdate=birthdate, password=password)
+    #     self.user_model.add_user(user)
+    #     return user

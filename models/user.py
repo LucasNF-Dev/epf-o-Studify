@@ -104,3 +104,16 @@ class UserModel:
     def delete_user(self, user_id: int):
         self.users = [u for u in self.users if u.id != user_id]
         self._save()
+
+    def login(self, user_email: str, user_password: str):
+        user = self.get_by_email(user_email)
+
+        if not user:
+            logger.warning(f"Email não cadastrado!")
+            return None
+        
+        if user.verify_password(user_password):
+            return user
+        else:
+            logger.warning(f"Senha incorreta!")
+            return None
