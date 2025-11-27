@@ -1,4 +1,5 @@
-from bottle import Bottle, request
+from bottle import Bottle, request, response
+from config import Config
 from .base_controller import BaseController
 from services.user_service import UserService
 
@@ -54,21 +55,22 @@ class UserController(BaseController):
     def login(self):
         if request.method == 'GET':
             return self.render('login_form', error=None, email=None)
-        else:
-            email = request.forms.get('email')
-            password = request.forms.get('password')
 
-            if not email or not password:
-                return self.render('login_form', error="Email e senha são obrigatórios", email=email)
-            
-            user = self.user_service.login(email, password)
-            
-            if user:    
-                request.session['user_id'] = user.id
-                request.session['user_name'] = user.name
-                self.redirect('/users')
-            else:
-                return self.render('login_form', error="Email ou senha incorretos", email=email)
+        email = request.forms.get('email')
+        password = request.forms.get('password')
+
+        if not email or not password:
+            return self.render('login_form', error="Email e senha são obrigatórios", email=email)
+
+        user = self.user_service.login(email, password)
+
+        if user:
+            response.set_cookie("user_id", str(user.id), secret=Config.SECRET_KEY, httponly=True)
+            response.set_cookie("user_name", user.name, secret=Config.SECRET_KEY, httponly=True)
+
+            self.redirect(f"/dashboard/{user.id}")
+
+        return self.render('login_form', error="Email ou senha incorretos", email=email)
 
 
 user_routes = Bottle()
