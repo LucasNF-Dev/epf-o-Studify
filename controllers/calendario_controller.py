@@ -1,4 +1,4 @@
-from bottle import get, post, template, request, redirect
+from bottle import get, post, template, request, redirect, route, run
 from services.calendario_service import CalendarioService
 
 @get("/calendario")
@@ -12,7 +12,7 @@ def form_prova():
 
 @post("/calendario/prova/nova")
 def salvar_prova():
-    data = request.froms.get("data")
+    data = request.forms.get("data")
     materia = request.forms.get("materia")
 
     cal = CalendarioService.load()
@@ -37,3 +37,4 @@ def salvar_evento():
     CalendarioService.save(cal)
 
     redirect ("/calendario")
+
