@@ -3,7 +3,7 @@
 <section class="users-section">
     <div class="section-header">
         <h1 class="section-title"><i class="fas fa-users"></i> Gestão de Usuários</h1>
-        <a href="/users/add" class="btn btn-primary">
+        <a href="/register" class="btn btn-primary">
             <i class="fas fa-plus"></i> Novo Usuário
         </a>
     </div>
