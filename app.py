@@ -1,28 +1,15 @@
 from bottle import Bottle
-from config import Config
+from database import create_tables
 
-class App:
-    def __init__(self):
-        self.bottle = Bottle()
-        self.config = Config()
-
-
-    def setup_routes(self):
-        from controllers import init_controllers
-
-        print('🚀 Inicializa rotas!')
-        init_controllers(self.bottle)
-
-
-    def run(self):
-        self.setup_routes()
-        self.bottle.run(
-            host=self.config.HOST,
-            port=self.config.PORT,
-            debug=self.config.DEBUG,
-            reloader=self.config.RELOADER
-        )
-
+from controllers.flashcard_controller import flashcard_routes
+from controllers.user_controller import user_routes
 
 def create_app():
-    return App()
+    create_tables()
+
+    app = Bottle()
+
+    app.mount("/flashcards", flashcard_routes)
+    app.mount("/users", user_routes)
+
+    return app
