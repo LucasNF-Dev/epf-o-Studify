@@ -13,7 +13,8 @@ class UserController(BaseController):
     # Rotas User
     def setup_routes(self):
         self.app.route('/users', method='GET', callback=self.list_users)
-        self.app.route('/users/add', method=['GET', 'POST'], callback=self.add_user)
+        self.app.route('/login', method=['GET', 'POST'] , callback=self.login)
+        self.app.route('/register', method=['GET', 'POST'], callback=self.add_user)
         self.app.route('/users/edit/<user_id:int>', method=['GET', 'POST'], callback=self.edit_user)
         self.app.route('/users/delete/<user_id:int>', method='POST', callback=self.delete_user)
 
@@ -25,11 +26,11 @@ class UserController(BaseController):
 
     def add_user(self):
         if request.method == 'GET':
-            return self.render('user_form', user=None, action="/users/add")
+            return self.render('user_form', user=None, action="/register")
         else:
             # POST - salvar usuário
             self.user_service.save()
-            self.redirect('/users')
+            self.redirect('/login')
 
 
     def edit_user(self, user_id):
@@ -48,6 +49,26 @@ class UserController(BaseController):
     def delete_user(self, user_id):
         self.user_service.delete_user(user_id)
         self.redirect('/users')
+
+
+    def login(self):
+        if request.method == 'GET':
+            return self.render('login_form', error=None, email=None)
+        else:
+            email = request.forms.get('email')
+            password = request.forms.get('password')
+
+            if not email or not password:
+                return self.render('login_form', error="Email e senha são obrigatórios", email=email)
+            
+            user = self.user_service.login(email, password)
+            
+            if user:    
+                request.session['user_id'] = user.id
+                request.session['user_name'] = user.name
+                self.redirect('/users')
+            else:
+                return self.render('login_form', error="Email ou senha incorretos", email=email)
 
 
 user_routes = Bottle()
