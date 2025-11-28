@@ -34,7 +34,7 @@ class FlashcardService:
     @staticmethod 
     def pegar_para_revisao():
         conn = get_connection()
-        cur = conn.cursor
+        cur = conn.cursor()
 
         hoje = datetime.now().strftime("%Y-%m-%d")
 

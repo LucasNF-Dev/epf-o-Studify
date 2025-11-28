@@ -37,7 +37,8 @@ class FlashcardController(BaseController):
         cards = self.flashcard_service.pegar_para_revisao()
 
         if not cards:
-            return self.render("flashcard/sem_revisao")
+            todos = self.flashcard_service.listar()
+            return self.render("flashcard/listar", flashcards=todos, mensagem="Não há mais flashcards para revisar hoje!")
         return self.render("flashcard/revisar", card=cards[0])
 
     def revisar_resposta(self, card_id, nivel):

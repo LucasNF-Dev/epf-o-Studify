@@ -1,13 +1,13 @@
-% rebase("layot.tpl")
+% rebase("layout.tpl")
 
 <h2>Novo Flashcard</h2>
 
-<form method="POST">
-    Pergunta: <br>
-    <input name="pergunta" type="text"><br>
+<form method="post">
+    <label>Pergunta:</label><br>
+    <input name="pergunta" type="text"><br><br>
 
-    Resposta: <br>
-    <textarea name="resposta"></textarea><br>
+    <label>Resposta:</label><br>
+    <textarea name="resposta"></textarea><br><br>
 
-    <buttom type="submit">Criar</buttom>
+    <button type="submit">Criar</button>
 </form>
