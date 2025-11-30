@@ -1,6 +1,9 @@
 from bottle import request, Bottle
 from .base_controller import BaseController
 from services.flashcard_service import FlashcardService
+from database import get_connection
+from datetime import datetime
+
 
 class FlashcardController(BaseController):
     def __init__(self, app):
@@ -21,17 +24,43 @@ class FlashcardController(BaseController):
 
     def novo(self):
         if request.method == 'GET':
-            return self.render('flashcard/novo')
+            categorias = self.flashcard_service.listar_categorias()
+            return self.render('flashcard/novo', categorias=categorias)
 
         pergunta = request.forms.get("pergunta")
         resposta = request.forms.get("resposta")
+        categoria = request.forms.get("categoria")
 
-        if not pergunta or not resposta:
+        if categoria == "outro":
+            categoria = request.forms.get("categoria_nova")
+
+        if not pergunta or not resposta or not categoria:
+            categorias = self.flashcard_service.listar_categorias()
             return self.render('flashcard/novo',
-                               error="Todos os campos são obrigatórios")
+                            categorias=categorias,
+                            error="Todos os campos são obrigatórios.")
 
-        self.flashcard_service.criar(pergunta, resposta)
+        self.flashcard_service.criar(pergunta, resposta, categoria)
+
         return self.redirect('/flashcards')
+
+
+    
+    def criar(self, pergunta, resposta, categoria):
+        conn = get_connection()
+        cur = conn.cursor()
+
+        proxima = datetime.now().strftime("%Y-%m-%d")
+
+        cur.execute("""
+            INSERT INTO flashcards (pergunta, resposta, proxima_revisao, categoria)
+            VALUES (?, ?, ?, ?)
+        """, (pergunta, resposta, proxima, categoria))
+
+        conn.commit()
+        conn.close()
+
+        
 
     def revisar(self):
         cards = self.flashcard_service.pegar_para_revisao()

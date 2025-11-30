@@ -5,16 +5,16 @@ from datetime import datetime, timedelta
 class FlashcardService:
 
     @staticmethod
-    def criar(pergunta, resposta):
+    def criar(pergunta, resposta, categoria):
         conn = get_connection()
         cur = conn.cursor()
 
         proxima = datetime.now().strftime("%Y-%m-%d")
 
         cur.execute("""
-            INSERT INTO flashcards (pergunta, resposta, proxima_revisao)
-            VALUES (?, ?, ?)
-        """, (pergunta, resposta, proxima))
+            INSERT INTO flashcards (pergunta, resposta, proxima_revisao, categoria)
+            VALUES (?, ?, ?, ?)
+        """, (pergunta, resposta, proxima, categoria))
 
         conn.commit()
         conn.close()
@@ -73,3 +73,19 @@ class FlashcardService:
 
         conn.commit()
         conn.close()
+
+    @staticmethod
+    def listar_categorias():
+        conn = get_connection()
+        cur = conn.cursor()
+
+        cur.execute("SELECT DISTINCT categoria FROM flashcards WHERE categoria IS NOT NULL")
+        categorias_bd = [row[0] for row in cur.fetchall()]
+
+        conn.close()
+
+        categorias_padrao = ["Matemática", "Programação", "Inglês", "Biologia", "Gramática", "História"]
+
+        todas = list(dict.fromkeys(categorias_padrao + categorias_bd))
+
+        return todas

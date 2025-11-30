@@ -12,7 +12,7 @@
 % if flashcards:
     <ul>
     % for c in flashcards:
-        <li><b>{{c.pergunta}}</b></li>
+        <li><b>{{c.pergunta}}</b> - <i>{{c.categoria}}</i></li>
     % end
     </ul>
 % else:

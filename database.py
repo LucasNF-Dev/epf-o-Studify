@@ -17,7 +17,8 @@ def create_tables():
             resposta TEXT NOT NULL,
             nivel INTEGER DEFAULT 1,
             ultima_revisao TEXT,
-            proxima_revisao TEXT
+            proxima_revisao TEXT,
+            categoria TEXT
         )
     """)
 
