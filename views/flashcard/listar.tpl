@@ -12,7 +12,13 @@
 % if flashcards:
     <ul>
     % for c in flashcards:
-        <li><b>{{c.pergunta}}</b> - <i>{{c.categoria}}</i></li>
+        <li>
+            <b>{{c.pergunta}}</b> — <i>{{c.categoria}}</i>
+            <br>
+            <a href="/flashcards/{{c.id}}/editar">Editar</a> |
+            <a href="/flashcards/{{c.id}}/excluir" onclick="return confirm('Tem certeza que deseja excluir?')">Excluir</a>
+        </li>
+        <br>
     % end
     </ul>
 % else:

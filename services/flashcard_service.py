@@ -89,3 +89,42 @@ class FlashcardService:
         todas = list(dict.fromkeys(categorias_padrao + categorias_bd))
 
         return todas
+
+    @staticmethod
+
+    def pegar_por_id(id):
+        conn = get_connection()
+        cur = conn.cursor()
+
+        cur.execute("SELECT * FROM flashcards WHERE id = ?", (id,))
+        dado = cur.fetchone()
+
+        conn.close()
+
+        return Flashcard(*dado) if dado else None
+
+
+    @staticmethod
+    def atualizar(id, pergunta, resposta, categoria):
+        conn = get_connection()
+        cur = conn.cursor()
+
+        cur.execute("""
+            UPDATE flashcards
+            SET pergunta = ?, resposta = ?, categoria = ?
+            WHERE id = ?
+        """, (pergunta, resposta, categoria, id))
+
+        conn.commit()
+        conn.close()
+
+
+    @staticmethod
+    def excluir(id):
+        conn = get_connection()
+        cur = conn.cursor()
+
+        cur.execute("DELETE FROM flashcards WHERE id = ?", (id,))
+
+        conn.commit()
+        conn.close()
