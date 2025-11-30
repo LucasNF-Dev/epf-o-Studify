@@ -91,17 +91,30 @@ class FlashcardService:
         return todas
 
     @staticmethod
-
     def pegar_por_id(id):
         conn = get_connection()
         cur = conn.cursor()
 
-        cur.execute("SELECT * FROM flashcards WHERE id = ?", (id,))
-        dado = cur.fetchone()
+        cur.execute("SELECT id, pergunta, resposta, nivel, ultima_revisao, proxima_revisao, categoria FROM flashcards WHERE id = ?", (id,))
+        row = cur.fetchone()
 
         conn.close()
 
-        return Flashcard(*dado) if dado else None
+        if not row:
+            return None
+
+        id, pergunta, resposta, nivel, ultima_revisao, proxima_revisao, categoria = row
+
+        return Flashcard(
+            id=id,
+            pergunta=pergunta,
+            resposta=resposta,
+            nivel=nivel,
+            ultima_revisao=ultima_revisao,
+            proxima_revisao=proxima_revisao,
+            categoria=categoria if categoria else "Geral"
+        )
+
 
 
     @staticmethod
@@ -128,3 +141,6 @@ class FlashcardService:
 
         conn.commit()
         conn.close()
+
+    
+
