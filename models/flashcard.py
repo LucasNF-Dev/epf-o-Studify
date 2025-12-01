@@ -69,14 +69,31 @@ class FlashcardModel:
     def add_card(self, card: Flashcard):
         self.flashcards.append(card)
         self._save()
+        
+    # 🟢 CONSOLIDADO: Obtém um cartão pelo ID
+    def get_by_id(self, card_id: int):
+        """Retorna um cartão pelo ID (sem verificar o user_id aqui)."""
+        return next((c for c in self.flashcards if c.id == card_id), None)
 
+    # 🟢 CONSOLIDADO: Atualiza o cartão e verifica a posse
     def update_card(self, updated_card: Flashcard):
+        """Atualiza um cartão existente e salva."""
         for i, card in enumerate(self.flashcards):
+            # 🚨 IMPORTANTE: Verifica ID e user_id para segurança
             if card.id == updated_card.id and card.user_id == updated_card.user_id:
                 self.flashcards[i] = updated_card
                 self._save()
-                break
+                return True
+        return False
 
+    # 🟢 CONSOLIDADO: Deleta o cartão e verifica a posse
     def delete_card(self, card_id: int, user_id: int):
-        self.flashcards = [c for c in self.flashcards if c.id != card_id or c.user_id != user_id]
-        self._save()
+        """Deleta um cartão verificando se ele pertence ao usuário."""
+        # Filtra e mantém apenas os cartões que NÃO correspondem ao ID e user_id fornecidos
+        initial_length = len(self.flashcards)
+        self.flashcards = [c for c in self.flashcards if not (c.id == card_id and c.user_id == user_id)]
+        
+        if len(self.flashcards) < initial_length:
+             self._save()
+             return True
+        return False

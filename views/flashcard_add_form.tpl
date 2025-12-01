@@ -1,16 +1,25 @@
-% rebase('layout', title='Criar Flashcard')
+% rebase('layout', title='Criar/Editar Flashcard')
+<%
+# 🟢 VERIFICA SE ESTAMOS EDITANDO
+# Variáveis passadas pelo controller: card_id (se for edição), front, back, error
+is_editing = defined('card_id') and card_id is not None
+action_url = '/flashcards/edit/' + str(card_id) if is_editing else '/flashcards/add'
+%>
 
 <section style="display: flex; justify-content: center; align-items: flex-start; padding: 40px; min-height: 100vh; background: #f5f5f5;">
     <div style="background: white; padding: 40px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); width: 100%; max-width: 600px;">
-        <h1 style="text-align: center; margin-bottom: 30px; color: #6a0dad;">📝 Novo Flashcard</h1>
+        
+        <h1 style="text-align: center; margin-bottom: 30px; color: #6a0dad;">
+            {{ '✏️ Editar Flashcard' if is_editing else '📝 Novo Flashcard' }}
+        </h1>
 
         % if error:
         <div style="background: #f8d7da; color: #721c24; padding: 12px; border-radius: 5px; margin-bottom: 20px; border: 1px solid #f5c6cb;">
             {{ error }}
         </div>
         % end
-
-        <form action="/flashcards/add" method="post">
+        
+        <form action="{{ action_url }}" method="post">
             
             <div style="margin-bottom: 20px;">
                 <label for="front" style="display: block; margin-bottom: 5px; color: #555;">Frente do Cartão (Pergunta/Conceito)</label>
@@ -26,7 +35,7 @@
 
             <div style="display: flex; justify-content: center; gap: 15px;">
                 <button type="submit" style="background: #28a745; color: white; padding: 12px 30px; border: none; border-radius: 5px; cursor: pointer; flex: 1;">
-                    Salvar Cartão
+                    {{ 'Salvar Alterações' if is_editing else 'Salvar Cartão' }}
                 </button>
                 <a href="/flashcards" style="background: #6c757d; color: white; padding: 12px 30px; border-radius: 5px; text-decoration: none; text-align: center; flex: 1;">
                     Cancelar

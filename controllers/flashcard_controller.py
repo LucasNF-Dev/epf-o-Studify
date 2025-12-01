@@ -12,7 +12,7 @@ class FlashcardController(BaseController):
         self.setup_routes()
 
     def get_logged_in_user_id(self):
-        """Função auxiliar para obter o ID do usuário logado (usado em /studify)."""
+        """Função auxiliar para obter o ID do usuário logado."""
         user_id_str = request.get_cookie("user_id", secret=Config.SECRET_KEY)
         try:
             return int(user_id_str)
@@ -29,9 +29,13 @@ class FlashcardController(BaseController):
         return wrapper
 
     def setup_routes(self):
-        # Rotas para gerenciamento e criação de cartões
+        # Rotas de CRUD
         self.app.route('/flashcards', method='GET', callback=self.secure_route(self.list_cards))
         self.app.route('/flashcards/add', method=['GET', 'POST'], callback=self.secure_route(self.add_card))
+        
+        # 🟢 NOVAS ROTAS DE MANUTENÇÃO (EDITAR E DELETAR)
+        self.app.route('/flashcards/edit/<card_id:int>', method=['GET', 'POST'], callback=self.secure_route(self.edit_card))
+        self.app.route('/flashcards/delete/<card_id:int>', method='POST', callback=self.secure_route(self.delete_card))
         
         # Rotas para a sessão de revisão
         self.app.route('/flashcards/review', method='GET', callback=self.secure_route(self.start_review))
@@ -58,6 +62,47 @@ class FlashcardController(BaseController):
                                  error="Frente e verso do cartão são obrigatórios.")
 
         self.flashcard_service.add_new_card(user_id, front, back)
+        return self.redirect('/flashcards')
+
+    # 🟢 NOVO MÉTODO: EDITAR CARTÃO (GET e POST)
+    def edit_card(self, user_id, card_id: int):
+        card = self.flashcard_service.get_card_by_id(card_id)
+
+        # 1. Verificação de segurança e existência
+        if not card or card.user_id != user_id:
+            return self.redirect('/flashcards')
+
+        # --- REQUISIÇÃO GET: Mostrar formulário de edição ---
+        if request.method == 'GET':
+            return self.render('flashcard_add_form', 
+                                 card_id=card.id, 
+                                 front=card.front, 
+                                 back=card.back, 
+                                 error=None)
+        
+        # --- REQUISIÇÃO POST: Salvar alterações ---
+        if request.method == 'POST':
+            front = request.forms.get('front')
+            back = request.forms.get('back')
+
+            try:
+                # Chama o Service para atualizar o conteúdo
+                self.flashcard_service.update_card_content(user_id, card_id, front, back)
+                # Redireciona para a lista
+                return self.redirect('/flashcards')
+            except ValueError as e:
+                # Retorna ao formulário com erro
+                return self.render('flashcard_add_form', 
+                                     card_id=card_id, 
+                                     front=front, 
+                                     back=back, 
+                                     error=str(e))
+
+    # 🟢 NOVO MÉTODO: DELETAR CARTÃO (POST)
+    def delete_card(self, user_id, card_id: int):
+        # A exclusão é feita por POST para maior segurança
+        self.flashcard_service.delete_card_by_id(user_id, card_id)
+        # Redireciona para a lista após a exclusão
         return self.redirect('/flashcards')
 
     # --- Sessão de Revisão (Anki-like) ---
@@ -96,10 +141,9 @@ class FlashcardController(BaseController):
                                   show_back=True)
         
         # 2. Se quality >= 0 (Botões de Avaliação 0-5)
-        # Calcula o novo agendamento com base na avaliação do usuário
         self.flashcard_service.calculate_next_schedule(card, quality)
         
-        # Redireciona para a próxima revisão (recarrega /flashcards/review)
+        # Redireciona para a próxima revisão
         return self.redirect('/flashcards/review')
 
 
