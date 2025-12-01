@@ -72,6 +72,7 @@
     /* Cores de Destaque */
     .flashcards-icon { color: #007bff; }
     .schedule-icon { color: #28a745; }
+    .kanban-icon { color: #6a0dad; } /* 🟢 NOVA COR: KANBAN */
     .profile-icon { color: #6f42c1; }
 
     /* Estilo do Botão Sair */
@@ -115,28 +116,37 @@
         </div>
 
         <p class="welcome-info">
-            O que você quer estudar hoje? Você tem **{{ data.get('total_flashcards', '0') }}** flashcards cadastrados e **{{ data.get('upcoming_events', '0') }}** eventos agendados.
+            O que você quer estudar hoje? Você tem 
+            **{{ data.get('total_flashcards', '0') }}** flashcards cadastrados, 
+            **{{ data.get('upcoming_events', '0') }}** eventos agendados, 
+            e **{{ data.get('total_tasks', '0') }}** tarefas ativas no Kanban. 
         </p>
 
         <div class="feature-cards-grid">
-            
-            <a href="/flashcards" class="feature-card">
-                <h2 class="flashcards-icon">📚 Flashcards</h2>
-                <p>Crie revisões rápidas e personalize seus estudos.</p>
-                <p style="margin-top: 10px; font-weight: bold;">{{ data.get('total_flashcards', '0') }} Cadastrados</p>
-            </a>
+        
+        <a href="/flashcards" class="feature-card">
+            <h2 class="flashcards-icon">📚 Flashcards</h2>
+            <p>Crie revisões rápidas e personalize seus estudos.</p>
+            <p style="margin-top: 10px; font-weight: bold;">{{ data.get('total_flashcards', '0') }} Cadastrados</p>
+        </a>
 
-            <a href="/schedule" class="feature-card">
-                <h2 class="schedule-icon">🗓️ Cronograma</h2>
-                <p>Próxima atividade: **{{ data.get('next_event', 'Nenhuma agendada') }}**.</p>
-                <p style="margin-top: 10px;">Gerencie horários e tarefas.</p>
-            </a>
-
-            <a href="/users/profile" class="feature-card">
-                <h2 class="profile-icon">👤 Perfil</h2>
-                <p>Gerencie suas informações e configurações do sistema.</p>
-                <p style="margin-top: 10px;">Acessar Configurações</p>
-            </a>
+        <a href="/schedule" class="feature-card">
+            <h2 class="schedule-icon">🗓️ Cronograma</h2>
+            <p>Próxima atividade: **{{ data.get('next_event_title', 'Nenhuma agendada') }}**.</p>
+            <p style="margin-top: 10px;">Gerencie horários e tarefas.</p>
+        </a>
+        
+        <a href="/tasks" class="feature-card">
+            <h2 class="kanban-icon">✅ Kanban / Tarefas</h2>
+            <p>Gerencie seu fluxo de estudo em colunas (A Fazer, Em Andamento, Concluído).</p>
+            <p style="margin-top: 10px; font-weight: bold;">{{ data.get('total_tasks', '0') }} Tarefas Ativas</p>
+        </a>
+        
+        <a href="/users/profile" class="feature-card">
+            <h2 class="profile-icon">👤 Perfil</h2>
+            <p>Gerencie suas informações e configurações do sistema.</p>
+            <p style="margin-top: 10px;">Acessar Configurações</p>
+        </a>
 
         </div>
 

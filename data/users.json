@@ -2,8 +2,15 @@
     {
         "id": 1,
         "name": "Lucas Nascimento Ferreira",
-        "email": "lucasnascimento13379@gmail.com",
+        "email": "lucasnascimento@gmail.com",
         "birthdate": "2006-05-20",
         "password": "$2b$12$bLmOic4PwueD4PUtZVfgQO97TulV5eFdtxNh6CkQ8d/mNSN5qdSLC"
+    },
+    {
+        "id": 2,
+        "name": "Matheus",
+        "email": "matheus@gmail.com",
+        "birthdate": "2000-12-04",
+        "password": "$2b$12$EmUuUBYvS3pY/D0I1VMLjOMIKQTV1hD2e9hmAx8w5leUicDmG3362"
     }
 ]

@@ -63,3 +63,15 @@ class ScheduleModel:
     def add_event(self, event: ScheduleEvent):
         self.events.append(event)
         self._save()
+
+    def update_event(self, updated_event: ScheduleEvent):
+        for i, event in enumerate(self.events):
+            # Garante que estamos atualizando o mesmo evento do mesmo usuário
+            if event.id == updated_event.id and event.user_id == updated_event.user_id:
+                self.events[i] = updated_event
+                self._save()
+                break
+    def delete_event(self, event_id: int, user_id: int):
+        # Filtra a lista, removendo o evento com o ID e user_id correspondente
+        self.events = [e for e in self.events if not (e.id == event_id and e.user_id == user_id)]
+        self._save()

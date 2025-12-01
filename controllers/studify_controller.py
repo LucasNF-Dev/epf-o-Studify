@@ -1,15 +1,27 @@
 from bottle import route, request, redirect, response, Bottle, template
-# Importe o BaseController e a Configuração
 from config import Config
 from .base_controller import BaseController 
-from services.user_service import UserService # Necessário para buscar o User pelo ID
+from services.user_service import UserService 
+
+# 🟢 NOVOS IMPORTS DE SERVICES
+# Necessários para contar itens no dashboard
+from services.flashcard_service import FlashcardService 
+from services.schedule_service import ScheduleService 
+from services.task_service import TaskService 
+from models.task import STATUS_DONE, STATUS_IN_PROGRESS, STATUS_TODO # Para contar tarefas ativas
 
 class StudifyController(BaseController):
     def __init__(self, app):
-        super().__init__(app)
-        self.user_service = UserService() # Para buscar o usuário pelo ID do cookie
-        # Inicialize outros services que você precisará (FlashcardService, CalendarService)
-        # self.flashcard_service = FlashcardService() 
+        # 🟢 CORREÇÃO CRUCIAL: Chama o construtor da classe base
+        super().__init__(app) 
+        
+        self.user_service = UserService()
+        
+        # 🟢 INICIALIZAÇÃO DOS SERVICES (Resolve o AttributeError)
+        self.flashcard_service = FlashcardService()
+        self.schedule_service = ScheduleService()
+        self.task_service = TaskService()
+        
         self.setup_routes()
 
     def setup_routes(self):
@@ -19,12 +31,12 @@ class StudifyController(BaseController):
 
     def get_logged_in_user(self):
         """Função auxiliar para verificar o cookie e retornar o objeto User."""
-        from config import Config # Importe Config aqui para garantir escopo
+        # Importamos Config aqui APENAS se não estivesse no topo (mas está, então podemos remover esta linha se estiver duplicada)
+        # from config import Config 
 
-        # Tenta obter o ID do cookie seguro
         user_id_str = request.get_cookie("user_id", secret=Config.SECRET_KEY)
         
-        # LINHA DE DEBUG:
+        # LINHA DE DEBUG (mantida)
         print(f"DEBUG - Cookie 'user_id' lido: {user_id_str}") 
         
         if not user_id_str:
@@ -32,11 +44,9 @@ class StudifyController(BaseController):
 
         # Busca o objeto User no banco de dados/Service
         try:
-            # O MÉTODO 'get_by_id' DEVE EXISTIR NO UserService
             user = self.user_service.get_by_id(int(user_id_str)) 
             return user
         except Exception as e:
-            # Em caso de erro (ex: ID inválido), trata como não logado
             print(f"Erro ao buscar usuário pelo cookie: {e}")
             return None
 
@@ -44,22 +54,43 @@ class StudifyController(BaseController):
         user = self.get_logged_in_user()
         
         if not user:
-            # Se não estiver logado, redireciona para o login
-            return redirect('/users/login') 
-            
-        # 3. Lógica para Coletar Dados (Busca nos Services)
-        # Ex: total_cards = self.flashcard_service.get_total_for_user(user.id)
+            return redirect('/users/login')
         
-        # Dados de exemplo para o template:
+        # 1. Obter dados básicos e ID
+        user_name = request.get_cookie("user_name", secret=Config.SECRET_KEY)
+        user_id = user.id 
+        
+        # 🟢 2. Coleta de Dados Reais dos Módulos
+        
+        # Flashcards
+        all_flashcards = self.flashcard_service.get_all_by_user(user_id)
+        
+        # Cronograma
+        next_event = self.schedule_service.get_next_activity(user_id)
+        all_schedule_events = self.schedule_service.get_all_by_user(user_id)
+        
+        # Kanban
+        kanban_board = self.task_service.get_all_by_user(user_id)
+        
+        # Conta tarefas ativas (TODO + IN_PROGRESS)
+        total_tasks_active = len(kanban_board[STATUS_TODO]) + len(kanban_board[STATUS_IN_PROGRESS])
+        
+        # 🟢 3. Dados para a View
         data_for_view = {
-            'user_name': user.name,
-            'total_flashcards': 42, # Mock
-            'upcoming_events': 3,    # Mock
-            'next_event': 'Revisão Matemática', # Mock
+            'user_name': user_name or user.name,
+            
+            # Flashcards
+            'total_flashcards': len(all_flashcards),
+            
+            # Cronograma
+            'upcoming_events': len(all_schedule_events), 
+            'next_event_title': next_event.title if next_event else 'Nenhuma agendada',
+            
+            # Kanban
+            'total_tasks': total_tasks_active,
         }
         
-        # 4. Renderiza o template studify.tpl
-        return self.render('studify', **data_for_view) 
+        return self.render('studify', data_for_view=data_for_view)
     
     def logout(self):
         # Apaga o cookie do navegador

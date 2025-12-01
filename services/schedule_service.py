@@ -65,3 +65,32 @@ class ScheduleService:
         
         # Retorna o objeto evento (índice 1 da tupla)
         return upcoming_events[0][1]
+    
+    def get_event_by_id(self, event_id: int):
+        """Busca um evento específico pelo ID."""
+        all_events = self.model.events # Acessa a lista de eventos carregada
+        return next((e for e in all_events if e.id == event_id), None)
+        
+    # 🟢 NOVO MÉTODO: EXCLUIR
+    def delete_event(self, event_id: int, user_id: int):
+        """Deleta um evento específico pelo ID e User ID."""
+        self.model.delete_event(event_id, user_id)
+        
+    # 🟢 NOVO MÉTODO: ATUALIZAR
+    def update_event(self, event: ScheduleEvent, title: str, start_time: str, end_time: str, description: str = None):
+        """Atualiza os dados de um evento existente."""
+        
+        start_dt = datetime.strptime(start_time, DATE_FORMAT)
+        end_dt = datetime.strptime(end_time, DATE_FORMAT)
+        
+        if start_dt >= end_dt:
+            raise ValueError("O horário de início deve ser anterior ao horário de término.")
+            
+        # Atualiza o objeto Evento
+        event.title = title
+        event.description = description
+        event.start_time = start_time
+        event.end_time = end_time
+        
+        # Salva as alterações no Model
+        self.model.update_event(event)

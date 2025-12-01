@@ -1,8 +1,14 @@
-% rebase('layout', title='Adicionar Evento')
+% rebase('layout', title='Adicionar/Editar Evento')
+<%
+is_editing = defined('event_id') and event_id is not None
+action_url = '/schedule/edit/' + str(event_id) if is_editing else '/schedule/add'
+%>
 
 <section style="display: flex; justify-content: center; align-items: flex-start; padding: 40px; min-height: 100vh; background: #f5f5f5;">
     <div style="background: white; padding: 40px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); width: 100%; max-width: 600px;">
-        <h1 style="text-align: center; margin-bottom: 30px; color: #6a0dad;">➕ Novo Compromisso</h1>
+        <h1 style="text-align: center; margin-bottom: 30px; color: #6a0dad;">
+            {{ '✏️ Editar Compromisso' if is_editing else '➕ Novo Compromisso' }}
+        </h1>
 
         % if error:
         <div style="background: #f8d7da; color: #721c24; padding: 12px; border-radius: 5px; margin-bottom: 20px; border: 1px solid #f5c6cb;">
@@ -10,7 +16,7 @@
         </div>
         % end
 
-        <form action="/schedule/add" method="post">
+        <form action="{{ action_url }}" method="post">
             
             <div style="margin-bottom: 20px;">
                 <label for="title" style="display: block; margin-bottom: 5px; color: #555;">Título do Evento</label>
@@ -39,7 +45,7 @@
 
             <div style="display: flex; justify-content: center; gap: 15px;">
                 <button type="submit" style="background: #007bff; color: white; padding: 12px 30px; border: none; border-radius: 5px; cursor: pointer; flex: 1;">
-                    Salvar Compromisso
+                    Salvar
                 </button>
                 <a href="/schedule" style="background: #6c757d; color: white; padding: 12px 30px; border-radius: 5px; text-decoration: none; text-align: center; flex: 1;">
                     Cancelar
