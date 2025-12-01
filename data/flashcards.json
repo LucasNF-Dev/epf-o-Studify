@@ -1,0 +1,38 @@
+[
+    {
+        "id": 1,
+        "user_id": 1,
+        "front": "O comando import pk3.*; faz com que classes nÃ£o-pÃºblicas (default) do pacote pk3 possam ser usadas em outros pacotes?",
+        "back": "NÃ£o. O import nÃ£o quebra as regras de visibilidade.",
+        "due_date": 1764637355,
+        "interval": 1,
+        "ease": 2.1799999999999997
+    },
+    {
+        "id": 2,
+        "user_id": 1,
+        "front": "O comando import pk3.*; faz com que classes nÃ£o-pÃºblicas (default) do pacote pk3 possam ser usadas em outros pacotes?",
+        "back": "NÃ£o. O import nÃ£o quebra as regras de visibilidade.",
+        "due_date": 1764637360,
+        "interval": 1,
+        "ease": 2.6
+    },
+    {
+        "id": 3,
+        "user_id": 1,
+        "front": "Por que a linha de cÃ³digo abaixo causa um erro de compilaÃ§Ã£o?\r\no = new A();\r\n(Considerando que A foi declarada como public abstract class A { ... })",
+        "back": "Porque classes declaradas como abstract (abstratas) nÃ£o podem ser instanciadas diretamente usando new.",
+        "due_date": 1764637363,
+        "interval": 1,
+        "ease": 1.96
+    },
+    {
+        "id": 4,
+        "user_id": 1,
+        "front": "fdgdfg",
+        "back": "gdfgdgd",
+        "due_date": 1764638053,
+        "interval": 1,
+        "ease": 1.96
+    }
+]
