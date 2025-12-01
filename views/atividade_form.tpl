@@ -13,8 +13,8 @@
         <input type="date" name="data" value="{{atividade.data if atividade else ''}}" required>
     </label><br><br>
     <label>
-        <input type="checkbox" name="feita" % if atividade and atividade.feita %checked% end>
-        Feita?
+        <input type="checkbox" name="concluida" % if atividade and atividade.concluida %checked% end>
+        concluida?
     </label><br><br>
     <button type="submit">Salvar</button>
 </form>

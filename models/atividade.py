@@ -2,62 +2,90 @@ import os
 import json
 
 class Atividade:
-    def __init__(self, id, nome, descricao, data, feita):
+    def __init__(self, id, user_id, nome, descricao, data, concluida):
         self.id = id
+        self.user_id = user_id
         self.nome = nome
         self.descricao = descricao
         self.data = data
-        self.feita = feita
+        self.concluida = concluida
+
 
     def to_dict(self):
         return {
             'id': self.id,
+            'user_id': self.user_id,
             'nome': self.nome,
             'descricao': self.descricao,
             'data': self.data,
-            'feita': self.feita
+            'concluida': self.concluida
         }
     
+
     @classmethod
     def from_dict(cls, data):
         return cls(**data)
     
-class AtividadeModel:
-    FILE_PATH = 'data/atividades.json'
 
+class AtividadeModel:
     def __init__(self):
         self.atividades = self._load()
 
+    
+    def get_file(self, user_id):
+        return f"data/atividades_{user_id}.json"
+    
+
+    def get_all(self, user_id):
+        file = self.get_file(user_id)
+        if not os.path.exists(file):
+            return []
+        with open(file, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            return [Atividade.from_dict(item) for item in data]
+        
+    
+    def save_all(self, user_id, atividades):
+        file = self.get_file(user_id)
+        os.makedirs("data", exist_ok=True)
+
+        with open(file, "w", encoding="utf-8") as f:
+            json.dump([a.to_dict() for a in atividades], f, indent=4, ensure_ascii=False)
+
+
     def _load(self):
-        import json, os
         if not os.path.exists(self.FILE_PATH):
             return []
         with open(self.FILE_PATH, 'r', encoding='utf-8') as f:
             return [Atividade.from_dict(item) for item in json.load(f)]
 
-    def _save(self):
-        import json
-        with open(self.FILE_PATH, 'w', encoding='utf-8') as f:
-            json.dump([a.to_dict() for a in self.atividades], f, indent=5, ensure_ascii=False)
 
-    def get_all(self):
-        return self.atividades
-
-    def get_by_id(self, atividade_id):
-        return next((a for a in self.atividades if a.id == atividade_id), None)
+    def get_by_id(self, user_id, atividade_id):
+        atividades = self.get_all(user_id)
+        return next((a for a in atividades if a.id == atividade_id), None)
+    
+    def next_id(self, user_id):
+        atividades = self.get_all(user_id)
+        if not atividades:
+            return 1
+        return max(a.id for a in atividades) + 1
+    
 
     def add(self, atividade):
-        self.atividades.append(atividade)
-        self._save()
-
-    def update(self, updated_atividade):
-        for i, a in enumerate(self.atividades):
-            if a.id == updated_atividade.id:
-                self.atividades[i] = updated_atividade
-                self._save()
+        atividades = self.get_all(atividade.user_id)
+        atividades.append(atividade)
+        self.save_all(atividade.user_id, atividades)
+    
+    def update(self, atividade):
+        atividades = self.get_all(atividade.user_id)
+        for i, a in enumerate(atividades):
+            if a.id == atividade.id:
+                atividades[i] = atividade
                 break
-
-    def delete(self, atividade_id):
-        self.atividades = [a for a in self.atividades if a.id != atividade_id]
-        self._save()
+        self.save_all(atividade.user_id, atividades)
+    
+    def delete(self, user_id, atividade_id):
+        atividades = self.get_all(user_id)
+        atividades = [a for a in atividades if a.id != atividade_id]
+        self.save_all(user_id, atividades)
     
