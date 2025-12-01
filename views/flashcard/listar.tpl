@@ -1,4 +1,4 @@
-% rebase("layout.tpl")
+% rebase ("layout.tpl", title='Meus Flashcards')
 
 <h2>Flashcards</h2>
 

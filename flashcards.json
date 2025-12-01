@@ -1,0 +1,38 @@
+[
+    {
+        "id": 1,
+        "pergunta": "Qual é a complexidade de tempo do algoritmo Bubble Sort no pior caso?",
+        "resposta": "O(n²)",
+        "categoria": "Estrutura de Dados",
+        "nivel": 1,
+        "ultima_revisao": "2025-11-28",
+        "proxima_revisao": "2025-12-01"
+    },
+    {
+        "id": 2,
+        "pergunta": "O que a sigla SOLID representa em Programação Orientada a Objetos?",
+        "resposta": "S: Single Responsibility, O: Open/Closed, L: Liskov Substitution, I: Interface Segregation, D: Dependency Inversion.",
+        "categoria": "POO",
+        "nivel": 2,
+        "ultima_revisao": "2025-11-25",
+        "proxima_revisao": "2025-12-05"
+    },
+    {
+        "id": 3,
+        "pergunta": "Em Python, qual é o principal uso do método __init__?",
+        "resposta": "É o método construtor. É chamado automaticamente quando uma nova instância (objeto) de uma classe é criada, sendo usado para inicializar atributos.",
+        "categoria": "Python",
+        "nivel": 1,
+        "ultima_revisao": "2025-11-29",
+        "proxima_revisao": "2025-12-01"
+    },
+    {
+        "id": 5,
+        "pergunta": "jorge Ã© bot?",
+        "resposta": "sim",
+        "categoria": "jorge Ã© bot",
+        "nivel": 1,
+        "ultima_revisao": "2025-11-30",
+        "proxima_revisao": "2025-12-03"
+    }
+]

@@ -1,146 +1,111 @@
-from database import get_connection
 from models.flashcard import Flashcard
+from .data_manager import load_data, save_data, get_next_id 
 from datetime import datetime, timedelta
 
 class FlashcardService:
 
     @staticmethod
-    def criar(pergunta, resposta, categoria):
-        conn = get_connection()
-        cur = conn.cursor()
-
-        proxima = datetime.now().strftime("%Y-%m-%d")
-
-        cur.execute("""
-            INSERT INTO flashcards (pergunta, resposta, proxima_revisao, categoria)
-            VALUES (?, ?, ?, ?)
-        """, (pergunta, resposta, proxima, categoria))
-
-        conn.commit()
-        conn.close()
-
-    @staticmethod
-    def listar():
-        conn = get_connection()
-        cur = conn.cursor()
-
-        cur.execute("SELECT * FROM flashcards")
-        dados = cur.fetchall()
-
-        conn.close()
-
-        return [Flashcard(*d) for d in dados]
-    
-    @staticmethod 
-    def pegar_para_revisao():
-        conn = get_connection()
-        cur = conn.cursor()
-
-        hoje = datetime.now().strftime("%Y-%m-%d")
-
-        cur.execute("""
-            SELECT * FROM flashcards
-            WHERE proxima_revisao <= ?
-            ORDER BY proxima_revisao ASC
-        """, (hoje,))
-
-        dados = cur.fetchall()
-        conn.close()
-
-        return [Flashcard(*d) for d in dados]
-    
-    @staticmethod 
-    def revisar(id, dificuldade):
-        """
-        dificuldade:
-        1 = facil(+3 dias)
-        2 = medio(+2 dias)
-        3 = dificil(+1dia)
-        """
-        conn = get_connection()
-        cur = conn.cursor()
-
-        dias = {1: 3, 2: 2, 3: 1}[dificuldade]
-
-        proxima = (datetime.now() + timedelta(days=dias)).strftime("%Y-%m-%d")
-        ultima = datetime.now().strftime("%Y-%m-%d")
-
-        cur.execute("""
-            UPDATE flashcards
-            SET nivel = ?, ultima_revisao = ?, proxima_revisao = ?
-            WHERE id = ?
-        """, (dificuldade, ultima, proxima, id))
-
-        conn.commit()
-        conn.close()
-
-    @staticmethod
-    def listar_categorias():
-        conn = get_connection()
-        cur = conn.cursor()
-
-        cur.execute("SELECT DISTINCT categoria FROM flashcards WHERE categoria IS NOT NULL")
-        categorias_bd = [row[0] for row in cur.fetchall()]
-
-        conn.close()
-
-        categorias_padrao = ["Matemática", "Programação", "Inglês", "Biologia", "Gramática", "História"]
-
-        todas = list(dict.fromkeys(categorias_padrao + categorias_bd))
-
-        return todas
-
-    @staticmethod
-    def pegar_por_id(id):
-        conn = get_connection()
-        cur = conn.cursor()
-
-        cur.execute("SELECT id, pergunta, resposta, nivel, ultima_revisao, proxima_revisao, categoria FROM flashcards WHERE id = ?", (id,))
-        row = cur.fetchone()
-
-        conn.close()
-
-        if not row:
-            return None
-
-        id, pergunta, resposta, nivel, ultima_revisao, proxima_revisao, categoria = row
-
+    def _map_to_object(data):
+        if not data: return None
         return Flashcard(
-            id=id,
-            pergunta=pergunta,
-            resposta=resposta,
-            nivel=nivel,
-            ultima_revisao=ultima_revisao,
-            proxima_revisao=proxima_revisao,
-            categoria=categoria if categoria else "Geral"
+            id=data.get('id'),
+            pergunta=data.get('pergunta'),
+            resposta=data.get('resposta'),
+            nivel=data.get('nivel', 1),
+            ultima_revisao=data.get('ultima_revisao', datetime.now().strftime("%Y-%m-%d")),
+            proxima_revisao=data.get('proxima_revisao', datetime.now().strftime("%Y-%m-%d")),
+            categoria=data.get('categoria', "Geral")
         )
 
 
+    @staticmethod
+    def criar(pergunta, resposta, categoria):
+        flashcards = load_data()
+        novo_id = get_next_id(flashcards)
+        proxima = datetime.now().strftime("%Y-%m-%d")
+
+        novo_card_dict = {
+            'id': novo_id,
+            'pergunta': pergunta,
+            'resposta': resposta,
+            'categoria': categoria,
+            'nivel': 1,
+            'ultima_revisao': proxima,
+            'proxima_revisao': proxima
+        }
+        
+        flashcards.append(novo_card_dict)
+        save_data(flashcards)
+
+    @staticmethod
+    def listar():
+        flashcards_data = load_data()
+        return [FlashcardService._map_to_object(d) for d in flashcards_data]
+    
+    @staticmethod
+    def pegar_por_id(id):
+        flashcards = load_data()
+        for data in flashcards:
+            if data['id'] == id:
+                return FlashcardService._map_to_object(data)
+        return None
 
     @staticmethod
     def atualizar(id, pergunta, resposta, categoria):
-        conn = get_connection()
-        cur = conn.cursor()
-
-        cur.execute("""
-            UPDATE flashcards
-            SET pergunta = ?, resposta = ?, categoria = ?
-            WHERE id = ?
-        """, (pergunta, resposta, categoria, id))
-
-        conn.commit()
-        conn.close()
-
+        flashcards = load_data()
+        for i, data in enumerate(flashcards):
+            if data['id'] == id:
+                flashcards[i]['pergunta'] = pergunta
+                flashcards[i]['resposta'] = resposta
+                flashcards[i]['categoria'] = categoria
+                save_data(flashcards)
+                return True
+        return False
 
     @staticmethod
     def excluir(id):
-        conn = get_connection()
-        cur = conn.cursor()
+        flashcards = load_data()
+        flashcards_atualizada = [data for data in flashcards if data['id'] != id]
+        
+        if len(flashcards_atualizada) < len(flashcards):
+            save_data(flashcards_atualizada)
+            return True
+        return False
 
-        cur.execute("DELETE FROM flashcards WHERE id = ?", (id,))
+    @staticmethod 
+    def pegar_para_revisao():
+        flashcards_data = load_data()
+        hoje = datetime.now().strftime("%Y-%m-%d")
 
-        conn.commit()
-        conn.close()
-
+        cards_para_revisar = []
+        for data in flashcards_data:
+            if data.get('proxima_revisao', '2999-01-01') <= hoje:
+                 cards_para_revisar.append(FlashcardService._map_to_object(data))
+        
+        cards_para_revisar.sort(key=lambda x: x.proxima_revisao)
+        return cards_para_revisar
     
+    @staticmethod 
+    def revisar(id, dificuldade):
+        flashcards = load_data()
+        
+        dias = {1: 3, 2: 2, 3: 1}[dificuldade]
+        proxima = (datetime.now() + timedelta(days=dias)).strftime("%Y-%m-%d")
+        ultima = datetime.now().strftime("%Y-%m-%d")
 
+        for i, data in enumerate(flashcards):
+            if data['id'] == id:
+                flashcards[i]['nivel'] = dificuldade
+                flashcards[i]['ultima_revisao'] = ultima
+                flashcards[i]['proxima_revisao'] = proxima
+                save_data(flashcards)
+                return True
+        return False
+
+    @staticmethod
+    def listar_categorias():
+        flashcards = load_data()
+        categorias_existentes = {data.get('categoria', 'Geral') for data in flashcards if data.get('categoria')}
+        categorias_padrao = ["Matemática", "Programação", "Inglês", "Biologia", "Gramática", "História"]
+        todas = list(dict.fromkeys(categorias_padrao + list(categorias_existentes)))
+        return todas

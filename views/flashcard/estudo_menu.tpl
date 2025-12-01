@@ -1,4 +1,4 @@
-% rebase("layout.tpl")
+% rebase("layout.tpl", title='Estudo Menu')
 
 <h2>Modo Estudo Completo</h2>
 

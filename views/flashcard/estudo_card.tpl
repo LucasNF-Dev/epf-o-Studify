@@ -1,4 +1,4 @@
-% rebase("layout.tpl")
+% rebase("layout.tpl", title='Modo de Estudos')
 
 <h3>Flashcard {{atual}} / {{total}}</h3>
 

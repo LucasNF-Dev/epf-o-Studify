@@ -1,4 +1,4 @@
-from bottle import Bottle, request
+from bottle import Bottle, request, redirect
 from controllers.base_controller import BaseController
 from services.flashcard_service import FlashcardService
 import random

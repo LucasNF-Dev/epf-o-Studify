@@ -1,22 +1,36 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8" />
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema Bottle - {{get('title', 'Sistema')}}</title>
-    <link rel="stylesheet" href="/static/css/style.css" />
+    <title>{{ title or 'Studify - App de Estudos' }}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <div class="container">
-        {{!base}}  <!-- O conteúdo das páginas filhas virá aqui -->
-    </div>
+    <header>
+        <div class="container">
+            <h1><a href="/">📚 Studify</a></h1>
+            <nav>
+                <ul>
+                    <li><a href="/flashcards">Flashcards</a></li>
+                    <li><a href="/calendario">Calendário</a></li>
+                    <li><a href="/logout">Sair</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    
+    <main class="container">
+        {{!base}} 
+    </main>
 
     <footer>
-        <p>&copy; 2025, Meu Projeto. Todos os direitos reservados.</p>
+        <div class="container">
+            <p>&copy; 2025 Studify - Projeto POO UnB</p>
+        </div>
     </footer>
-
-    <!-- Scripts JS no final do body -->
-    <script src="/static/js/main.js"></script>
+    
 </body>
 </html>

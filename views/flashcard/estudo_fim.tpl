@@ -1,4 +1,4 @@
-% rebase("layout.tpl")
+% rebase("layout.tpl", title='Fim dos Estudos')
 
 <h2>Fim do estudo!</h2>
 
