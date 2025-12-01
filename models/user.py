@@ -2,8 +2,6 @@ import os
 import json
 import bcrypt
 import logging
-from dataclasses import dataclass, asdict
-from typing import List
 
 logger = logging.getLogger(__name__)
 
@@ -105,6 +103,7 @@ class UserModel:
         self.users = [u for u in self.users if u.id != user_id]
         self._save()
 
+
     def login(self, user_email: str, user_password: str):
         user = self.get_by_email(user_email)
 
@@ -117,3 +116,4 @@ class UserModel:
         else:
             logger.warning(f"Senha incorreta!")
             return None
+        
