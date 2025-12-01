@@ -16,6 +16,7 @@ class AtividadeController(BaseController):
 
     def list_atividades(self):
         atividades = self.atividade_service.get_all()
+        atividades = sorted(atividades, key=lambda a: a.data)
         return self.render('atividades', atividades=atividades)
 
     def add_atividade(self):

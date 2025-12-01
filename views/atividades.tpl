@@ -5,11 +5,10 @@
 <a href="/atividades/add">Adicionar Atividade</a>
 <table border="1">
     <tr>
-        <th>ID</th><th>Nome</th><th>Descrição</th><th>Data</th><th>concluida?</th><th>Ações</th>
+        <th>Nome</th><th>Descrição</th><th>Data</th><th>concluida?</th><th>Ações</th>
     </tr>
     % for a in atividades:
     <tr>
-        <td>{{a.id}}</td>
         <td>{{a.nome}}</td>
         <td>{{a.descricao}}</td>
         <td>{{a.data}}</td>
