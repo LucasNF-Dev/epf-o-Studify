@@ -20,6 +20,7 @@ class AtividadeService:
 
     def save(self):
         user_id = request.get_cookie('user_id', secret=Config.SECRET_KEY)
+        print("COOKIE USER:", user_id)
 
         if not user_id:
             raise Exception("Sem usuario logado")
@@ -37,11 +38,12 @@ class AtividadeService:
 
         atividade = Atividade(new_id, user_id, nome, descricao, data, concluida)
 
-        self.atividade_model.add(atividade, user_id)
+        self.atividade_model.add(atividade)
 
 
     def get_by_id(self, atividade_id):
-        return self.atividade_model.get_by_id(atividade_id)
+        user_id = self.get_user_id()
+        return self.atividade_model.get_by_id(user_id, atividade_id)
 
 
     def edit(self, atividade):
@@ -53,4 +55,5 @@ class AtividadeService:
 
 
     def delete(self, atividade_id):
-        self.atividade_model.delete(atividade_id)
+        user_id = self.get_user_id()
+        self.atividade_model.delete(user_id, atividade_id)

@@ -29,11 +29,15 @@ class Atividade:
 
 class AtividadeModel:
     def __init__(self):
-        self.atividades = self._load()
+        self.data = {}
 
-    
+
     def get_file(self, user_id):
-        return f"data/atividades_{user_id}.json"
+        print("CRIANDO PASTA SE NÃO EXISTIR")
+        os.makedirs("data", exist_ok=True)
+        file = f"data/atividades_{user_id}.json"
+        print("FILE PATH:", file)
+        return file
     
 
     def get_all(self, user_id):
@@ -42,7 +46,7 @@ class AtividadeModel:
             return []
         with open(file, 'r', encoding='utf-8') as f:
             data = json.load(f)
-            return [Atividade.from_dict(item) for item in data]
+        return [Atividade.from_dict(item) for item in data]
         
     
     def save_all(self, user_id, atividades):
@@ -53,17 +57,11 @@ class AtividadeModel:
             json.dump([a.to_dict() for a in atividades], f, indent=4, ensure_ascii=False)
 
 
-    def _load(self):
-        if not os.path.exists(self.FILE_PATH):
-            return []
-        with open(self.FILE_PATH, 'r', encoding='utf-8') as f:
-            return [Atividade.from_dict(item) for item in json.load(f)]
-
-
     def get_by_id(self, user_id, atividade_id):
         atividades = self.get_all(user_id)
         return next((a for a in atividades if a.id == atividade_id), None)
     
+
     def next_id(self, user_id):
         atividades = self.get_all(user_id)
         if not atividades:
@@ -76,6 +74,7 @@ class AtividadeModel:
         atividades.append(atividade)
         self.save_all(atividade.user_id, atividades)
     
+
     def update(self, atividade):
         atividades = self.get_all(atividade.user_id)
         for i, a in enumerate(atividades):
@@ -84,6 +83,7 @@ class AtividadeModel:
                 break
         self.save_all(atividade.user_id, atividades)
     
+
     def delete(self, user_id, atividade_id):
         atividades = self.get_all(user_id)
         atividades = [a for a in atividades if a.id != atividade_id]
